@@ -1,0 +1,33 @@
+{
+  "name": "assistant-ia-prediction-risques",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Assistant IA de Prédiction des Risques et d'Orientation Précoce — TETRA004 / Tetrathon Track A",
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.12.7",
+    "boxicons": "^2.1.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+/* Global resets & Boxicons integration */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin:  0;
+  padding: 0;
+  height:  100%;
+  background: #0d1117;
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar — dark theme */
+::-webkit-scrollbar       { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #161b22; }
+::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #484f58; }
+
+/* Recharts overrides */
+.recharts-tooltip-wrapper { pointer-events: none !important; }
+
+/* Focus ring — accessibility */
+button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid #388bfd;
+  outline-offset: 2px;
+}
+
+/* Boxicons spin animation */
+.bx-spin { animation: bx-spin 1s linear infinite; }
+@keyframes bx-spin { to { transform: rotate(360deg); } }
+
+/* Boxicons tada animation */
+.bx-tada {
+  animation: bx-tada 1.5s ease infinite;
+}
+@keyframes bx-tada {
+  0%   { transform: scale(1);             }
+  10%  { transform: scale(.9) rotate(-3deg); }
+  20%  { transform: scale(.9) rotate(-3deg); }
+  30%  { transform: scale(1.1) rotate(3deg); }
+  40%  { transform: scale(1.1) rotate(-3deg); }
+  50%  { transform: scale(1.1) rotate(3deg); }
+  60%  { transform: scale(1.1) rotate(-3deg); }
+  70%  { transform: scale(1.1) rotate(3deg); }
+  80%  { transform: scale(1.1) rotate(-3deg); }
+  90%  { transform: scale(1.1) rotate(3deg); }
+  100% { transform: scale(1) rotate(0);   }
+}
+
+/* Input focus border override via CSS variable approach */
+input:focus, select:focus {
+  border-color: #1f6feb !important;
+  box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.15);
+}
+
+/* Mobile responsive — stack navbar */
+@media (max-width: 640px) {
+  header { height: auto !important; padding: 10px 16px !important; }
+  nav[role="tablist"] { gap: 2px !important; }
+  nav[role="tablist"] button span:last-of-type { display: none; }
+}
