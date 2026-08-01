@@ -3,7 +3,7 @@ import { theme } from '../theme/theme.js';
 import { MALADIES } from '../data/domaine.js';
 import { useConnexion, usePrediction } from '../hooks/useConnexion.js';
 import { getNiveauRisque } from './CarteRisque.jsx';
-
+import { useNavigate } from "react-router-dom";
 import FormulairePatient       from './FormulairePatient.jsx';
 import CarteRisque             from './CarteRisque.jsx';
 import { PanneauExplicabilite } from './PanneauExplicabilite.jsx';
@@ -30,6 +30,18 @@ export default function Dashboard() {
   const [expandedCards, setExpanded]= useState(new Set());
   const { enLigne, syncing, derniereSynchro, synchroniser } = useConnexion();
   const { predictions, chargement, predire, reinitialiser } = usePrediction();
+
+  const navigate = useNavigate();
+
+const handleLogout = () => {
+  const confirmLogout = window.confirm(
+    "Are you sure you want to log out?"
+  );
+
+  if (confirmLogout) {
+    navigate("/login");
+  }
+};
 
   const toggleCard = (id) =>
     setExpanded(prev => {
@@ -101,6 +113,9 @@ export default function Dashboard() {
         <div style={styles.navRight}>
           {/* Language toggle */}
           <div style={styles.langToggle}>
+
+
+            
             {LANGUES.map(l => (
               <button
                 key={l.code}
@@ -120,6 +135,12 @@ export default function Dashboard() {
             derniereSynchro={derniereSynchro}
             onSync={synchroniser}
           />
+          <button
+  onClick={handleLogout}
+  style={styles.logoutButton}
+>
+  🚪 Logout
+</button>
         </div>
       </header>
 
@@ -569,4 +590,16 @@ const styles = {
     display:  'flex',
     alignItems:'center',
   },
+
+  logoutButton: {
+  background: "#dc2626",
+  color: "white",
+  border: "none",
+  borderRadius: "8px",
+  padding: "8px 14px",
+  cursor: "pointer",
+  fontWeight: "bold",
+},
 };
+
+

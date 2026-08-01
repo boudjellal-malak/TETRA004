@@ -61,3 +61,13 @@ input:focus, select:focus {
   nav[role="tablist"] { gap: 2px !important; }
   nav[role="tablist"] button span:last-of-type { display: none; }
 }
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
