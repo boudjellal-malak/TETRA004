@@ -1,12 +1,25 @@
 import { theme } from '../theme/theme.js';
 import { PanneauExplicabilite } from './PanneauExplicabilite.jsx';
 
-// Derives risk level from probability score
-export function getNiveauRisque(prob) {
+// Correspondance niveau API (français) → clé palette (anglais)
+const NIVEAU_TO_KEY = {
+  'Urgent': 'urgent',
+  'Élevé':  'high',
+  'Moyen':  'medium',
+  'Faible': 'low',
+};
+
+// Derive risk level key from probability (fallback si l'API ne retourne pas de niveau)
+function niveauDeprobabilite(prob) {
   if (prob >= 0.75) return 'urgent';
   if (prob >= 0.50) return 'high';
   if (prob >= 0.25) return 'medium';
   return 'low';
+}
+
+// Conservé pour la compatibilité avec PanneauOrientation (mode mock)
+export function getNiveauRisque(prob) {
+  return niveauDeprobabilite(prob);
 }
 
 // One-line clinical summary (French) based on level
@@ -22,20 +35,27 @@ const RESUMES = {
  * Props:
  *   maladie     { id, label, icon, color }
  *   probabilite number (0–1)
+ *   niveau      string — niveau retourné par l'API ("Faible"|"Moyen"|"Élevé"|"Urgent")
+ *   resume      string — résumé textuel retourné par l'API (optionnel)
  *   shap        array of { feature, valeur }
  *   expanded    bool
  *   onToggle    () => void
  */
-export default function CarteRisque({ maladie, probabilite, shap, expanded, onToggle }) {
-  const niveau   = getNiveauRisque(probabilite);
-  const palette  = theme.risk[niveau];
+export default function CarteRisque({ maladie, probabilite, niveau: niveauApi, resume: resumeApi, shap, expanded, onToggle }) {
+  // Utiliser le niveau de l'API si disponible, sinon calculer localement
+  const niveauKey = niveauApi
+    ? (NIVEAU_TO_KEY[niveauApi] ?? niveauDeprobabilite(probabilite))
+    : niveauDeprobabilite(probabilite);
+  const palette  = theme.risk[niveauKey];
   const pct      = Math.round(probabilite * 100);
-  const resume   = RESUMES[niveau](maladie.label);
+  // Préférer le résumé de l'API (issu de SHAP), sinon le texte générique local
+  const resume   = resumeApi || RESUMES[niveauKey](maladie.label);
 
-  const isUrgent = niveau === 'urgent';
+  const isUrgent = niveauKey === 'urgent';
 
   return (
-    <div style={{ ...styles.card, borderColor: palette.border, background: isUrgent ? palette.bg : theme.bg.surface }}>
+    <div style={{ ...styles.card, borderColor: palette.border, background: isUrgent ? palette.bg : theme.bg.surface }}
+         role="article" aria-label={`Risque ${maladie.label} : ${pct}%`}>
       {/* ── Urgent banner ── */}
       {isUrgent && (
         <div style={styles.urgentBanner}>

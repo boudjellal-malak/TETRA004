@@ -1,5 +1,4 @@
 import { theme } from '../theme/theme.js';
-import { getNiveauRisque } from './CarteRisque.jsx';
 
 const ACTIONS = {
   urgent: {
@@ -54,13 +53,32 @@ const ACTIONS = {
  *   predictions  object { diabetes, heart, stroke, ckd } each with { probabilite }
  *   maladies     MALADIES array from domaine.js
  */
+// Correspondance niveau API (français) → clé ACTIONS (anglais)
+const NIVEAU_API_TO_KEY = {
+  'Urgent': 'urgent',
+  'Élevé':  'high',
+  'Moyen':  'medium',
+  'Faible': 'low',
+};
+
 export default function PanneauOrientation({ predictions, maladies }) {
   if (!predictions) return null;
 
-  // Determine overall max risk level
+  // Utiliser le niveau retourné par l'API si disponible, sinon calculer localement
+  const getNiveauLocal = (m) => {
+    const d = predictions[m.id];
+    if (!d) return 'low';
+    if (d.niveau) return NIVEAU_API_TO_KEY[d.niveau] ?? 'low';
+    const p = d.probabilite ?? 0;
+    if (p >= 0.75) return 'urgent';
+    if (p >= 0.50) return 'high';
+    if (p >= 0.25) return 'medium';
+    return 'low';
+  };
+
   const niveaux = maladies.map(m => ({
     label:  m.label,
-    niveau: getNiveauRisque(predictions[m.id]?.probabilite ?? 0),
+    niveau: getNiveauLocal(m),
     prob:   predictions[m.id]?.probabilite ?? 0,
     color:  m.color,
   }));

@@ -10,22 +10,48 @@ const IMPORTANCE_STYLE = {
 /**
  * PanneauRecommandations — missing lab tests panel.
  * Props:
- *   maladiesActives  string[]  — ids of diseases with medium/high/urgent risk
- *   champsRemplis    string[]  — feature ids already provided by the clinician
+ *   maladiesActives  string[]     — ids of diseases with medium/high/urgent risk
+ *   champsRemplis    string[]     — feature ids already provided by the clinician
+ *   analysesApi      object       — { [diseaseId]: [ { nom, justification } ] } retournées par l'API
  */
-export default function PanneauRecommandations({ maladiesActives, champsRemplis }) {
-  // Collect unique missing tests across all active diseases
-  const testsAfficher = [];
-  const seen = new Set();
+export default function PanneauRecommandations({ maladiesActives, champsRemplis, analysesApi }) {
+  // 1. Analyses dynamiques retournées par l'API (priorité haute)
+  const apiTests = [];
+  const seenApi = new Set();
+  if (analysesApi) {
+    Object.entries(analysesApi).forEach(([id, liste]) => {
+      (liste ?? []).forEach(a => {
+        const key = `api-${a.nom}`;
+        if (!seenApi.has(key)) {
+          seenApi.add(key);
+          apiTests.push({
+            id:         key,
+            label:      a.nom,
+            importance: 'Haute',
+            icon:       'bx-test-tube',
+            justification: a.justification,
+            source:     'api',
+          });
+        }
+      });
+    });
+  }
+
+  // 2. Analyses statiques (TESTS_RECOMMANDES) pour compléter
+  const staticTests = [];
+  const seen = new Set([...seenApi]);
 
   (maladiesActives || []).forEach(id => {
     (TESTS_RECOMMANDES[id] || []).forEach(test => {
       if (!seen.has(test.id) && !champsRemplis?.includes(test.id)) {
         seen.add(test.id);
-        testsAfficher.push({ ...test, maladie: id });
+        staticTests.push({ ...test, maladie: id, source: 'static' });
       }
     });
   });
+
+  // Fusionner : API d'abord, statiques ensuite
+  const testsAfficher = [...apiTests, ...staticTests];
 
   // Sort: Haute first
   const order = { Haute: 0, Moyenne: 1, Faible: 2 };
