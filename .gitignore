@@ -1,0 +1,56 @@
+# ── Environnements virtuels Python
+venv/
+env/
+ENV/
+.venv/
+
+# ── Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# ── Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Modèles (inclus pour la démo jury — décommenter pour exclure)
+# models_saved/*.pkl
+
+# ── Données & Archives
+*.rar
+*.zip
+
+# ── Tests & Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── Secrets
+.env
+.env.local
+.env.production
+*.key
+*.pem
+
+# ── Build / Distribution
+build/
+dist/
+*.egg-info/
+src/frontend/dist/
+
+# ── Node.js
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# ── IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Logs
+*.log

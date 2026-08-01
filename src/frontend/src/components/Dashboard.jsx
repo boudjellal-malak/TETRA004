@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { theme } from '../theme/theme.js';
 import { MALADIES } from '../data/domaine.js';
 import { useConnexion, usePrediction } from '../hooks/useConnexion.js';
-import { getNiveauRisque } from './CarteRisque.jsx';
 
 import FormulairePatient       from './FormulairePatient.jsx';
 import CarteRisque             from './CarteRisque.jsx';
@@ -29,7 +28,7 @@ export default function Dashboard() {
   const [ongletActif, setOnglet]    = useState('formulaire');
   const [expandedCards, setExpanded]= useState(new Set());
   const { enLigne, syncing, derniereSynchro, synchroniser } = useConnexion();
-  const { predictions, chargement, predire, reinitialiser } = usePrediction();
+  const { predictions, chargement, predire, reinitialiser, sourceReelle } = usePrediction();
 
   const toggleCard = (id) =>
     setExpanded(prev => {
@@ -49,15 +48,27 @@ export default function Dashboard() {
     setExpanded(new Set());
   };
 
-  // Diseases with non-low risk (for recommendations)
+  // Niveau de risque depuis l'API (ou calcul local pour le mock)
+  const getNiveau = (id) => {
+    const d = predictions?.[id];
+    if (!d) return 'Faible';
+    // Si l'API a retourné un niveau, l'utiliser directement
+    if (d.niveau) return d.niveau;
+    // Sinon fallback local (cas mock)
+    const p = d.probabilite ?? 0;
+    if (p >= 0.75) return 'Urgent';
+    if (p >= 0.50) return 'Élevé';
+    if (p >= 0.25) return 'Moyen';
+    return 'Faible';
+  };
+
+  // Maladies avec risque non-Faible (pour les recommandations)
   const maladiesActives = predictions
-    ? MALADIES
-        .filter(m => getNiveauRisque(predictions[m.id]?.probabilite ?? 0) !== 'low')
-        .map(m => m.id)
+    ? MALADIES.filter(m => getNiveau(m.id) !== 'Faible').map(m => m.id)
     : [];
 
   const hasUrgent = predictions
-    ? MALADIES.some(m => getNiveauRisque(predictions[m.id]?.probabilite ?? 0) === 'urgent')
+    ? MALADIES.some(m => getNiveau(m.id) === 'Urgent')
     : false;
 
   const dir = LANGUES.find(l => l.code === langue)?.dir ?? 'ltr';
@@ -173,6 +184,18 @@ export default function Dashboard() {
                     <i className="bx bx-time" style={{ marginRight: '5px' }} />
                     Analyse générée le {new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </p>
+                  {/* Badge source : IA réelle vs mode démonstration */}
+                  <span style={{
+                    fontSize: '11px', fontWeight: '700', padding: '3px 10px',
+                    borderRadius: '12px',
+                    background: sourceReelle ? theme.accent.subtle : theme.bg.elevated,
+                    color:      sourceReelle ? theme.accent.light   : theme.text.muted,
+                    border:     `1px solid ${sourceReelle ? theme.accent.primary : theme.border.default}`,
+                    display:    'flex', alignItems: 'center', gap: '5px',
+                  }}>
+                    <i className={`bx ${sourceReelle ? 'bx-chip' : 'bx-info-circle'}`} style={{ fontSize: '13px' }} />
+                    {sourceReelle ? 'IA XGBoost — données réelles' : 'Mode démonstration (API hors ligne)'}
+                  </span>
                   <button onClick={handleNouvelleAdmission} style={styles.newPatientBtn}>
                     <i className="bx bx-refresh" style={{ fontSize: '15px' }} />
                     Nouvelle admission
@@ -204,6 +227,8 @@ export default function Dashboard() {
                     key={maladie.id}
                     maladie={maladie}
                     probabilite={predictions[maladie.id]?.probabilite ?? 0}
+                    niveau={predictions[maladie.id]?.niveau}
+                    resume={predictions[maladie.id]?.resume}
                     shap={predictions[maladie.id]?.shap}
                     expanded={expandedCards.has(maladie.id)}
                     onToggle={() => toggleCard(maladie.id)}
@@ -229,6 +254,9 @@ export default function Dashboard() {
             <PanneauRecommandations
               maladiesActives={maladiesActives.length > 0 ? maladiesActives : ['diabetes', 'heart', 'stroke', 'ckd']}
               champsRemplis={[]}
+              analysesApi={predictions ? Object.fromEntries(
+                Object.entries(predictions).map(([id, d]) => [id, d?.analyses ?? []])
+              ) : null}
             />
           </section>
         )}
@@ -263,7 +291,11 @@ export default function Dashboard() {
                         <span style={{
                           fontSize: '13px',
                           fontWeight: '700',
-                          color: theme.risk[getNiveauRisque(predictions[m.id]?.probabilite ?? 0)].text,
+                          color: (() => {
+                            const n = getNiveau(m.id);
+                            const k = n === 'Urgent' ? 'urgent' : n === 'Élevé' ? 'high' : n === 'Moyen' ? 'medium' : 'low';
+                            return theme.risk[k]?.text ?? theme.text.secondary;
+                          })(),
                         }}>
                           {Math.round((predictions[m.id]?.probabilite ?? 0) * 100)}%
                         </span>
