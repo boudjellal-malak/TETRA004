@@ -5,7 +5,7 @@ import { theme, inputBase } from '../theme/theme.js';
 
 const CHAMPS_REQUIS = [
   {
-    section: 'Données Démographiques',
+    section: 'Demographic Information',
     icon:    'bx-user',
     champs: [
       { id: 'age',     label: 'Âge',        type: 'number', unit: 'ans',  min: 0, max: 120, placeholder: 'ex: 45' },
@@ -14,7 +14,7 @@ const CHAMPS_REQUIS = [
     ],
   },
   {
-    section: 'Signes Vitaux',
+    section: 'Vital Signs',
     icon:    'bx-heart-circle',
     champs: [
       { id: 'tension_systolique', label: 'Tension systolique', type: 'number', unit: 'mmHg', min: 60,  max: 250, placeholder: 'ex: 120' },
@@ -24,7 +24,7 @@ const CHAMPS_REQUIS = [
     ],
   },
   {
-    section: 'Antécédents Médicaux',
+    section: 'Medical History',
     icon:    'bx-clipboard',
     champs: [
       { id: 'hypertension',       label: 'Hypertension artérielle', type: 'checkbox' },
@@ -37,7 +37,7 @@ const CHAMPS_REQUIS = [
 
 const CHAMPS_AVANCES = [
   {
-    section: 'Résultats de Laboratoire (Optionnel)',
+    section: 'Laboratory Results',
     icon:    'bx-test-tube',
     champs: [
       { id: 'cholesterol',     label: 'Cholestérol total',        type: 'number', unit: 'mg/dL', placeholder: 'ex: 195' },

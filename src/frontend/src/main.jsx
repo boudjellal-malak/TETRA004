@@ -1,10 +1,23 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import Dashboard from './components/Dashboard.jsx';
-import './index.css';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Splash from "./pages/Splash";
+import Dashboard from "./components/Dashboard";
+
+import "./index.css";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Dashboard />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Splash />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>
 );

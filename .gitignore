@@ -36,11 +36,12 @@ htmlcov/
 # ── Build / Distribution
 build/
 dist/
-*.egg-info/
 src/frontend/dist/
+*.egg-info/
 
 # ── Node.js
 node_modules/
+src/frontend/node_modules/
 npm-debug.log*
 package-lock.json
 
